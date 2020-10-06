@@ -13,6 +13,21 @@ library(tidyverse)
 
 **Prompt:** Create a graphic of the posterior distribution of the [538 forecast](https://projects.fivethirtyeight.com/2020-election-forecast/) for Biden's electoral vote total. Recall the example given in Chapter 5 of *The Primer*.
 
+```{r}
+library(readr)
+presidential_ev_probabilities_2020 <- read_csv("data_538/election-forecasts-2020/presidential_ev_probabilities_2020.csv")
+```
+
+
+```{r}
+ggplot(presidential_ev_probabilities_2020, aes(x = total_ev, y = evprob_chal)) +
+  geom_col() +
+  labs(title = "Posterior Distribution of Biden's Electoral Vote",
+       x = "Total Electoral Vote",
+       y = "Probability of Biden's Electoral Vote", caption = "Data from October 3, 2020") +
+  theme_classic()
+```
+
 
 
 ### Scene 2
@@ -20,12 +35,20 @@ library(tidyverse)
 **Prompt:** The purpose of this question and the next is to make sure you understand the Rubin Causal Model. Use a Google sheet, or a spreadsheet of your choice, to create the necessary tables. Most will just require a couple of lines. Wisconsin has 10 electoral votes.
 
 a) Create an ideal Preceptor Table which examines the causal effect of a proposed advertising campaign on Biden's electoral votes from Wisconsin. 
+ad no_ad effect
+10   0    10
+
 
 b) Assume that Biden implements the campaign, create the actual Preceptor Table which we will see after the election.
 
+
+10 ? ?
+
+
+
 c) What does the actual Preceptor Table look like now?
 
-
+? ? ?
 
 
 ### Scene 3
@@ -35,12 +58,51 @@ c) What does the actual Preceptor Table look like now?
 
 a) What is the probability that Biden wins more than 300 electoral votes?
 
+```{r}
+biden <- presidential_ev_probabilities_2020 %>%
+  filter(total_ev > 300) %>%
+  summarize(prob = sum(evprob_chal))
+
+biden
+```
+
+
 b) What is the probability that Biden wins exactly 531 electoral votes? Is this answer consistent with your answer in a)?
+
+```{r}
+biden_531 <- presidential_ev_probabilities_2020 %>%
+  filter(total_ev == 531) %>%
+  summarize(prob = sum(evprob_chal))
+
+biden_531
+
+
+```
+
+
+
 
 c) What is the probability of a "very close" election, defined as Biden winning between 269 and 289 electoral votes, inclusive?
 
+```{r}
+biden_c <- presidential_ev_probabilities_2020 %>%
+  filter(total_ev <= 289 & total_ev >= 269) %>%
+  summarize(prob = sum(evprob_chal))
+
+biden_c
+```
+
+
 d) How many unique electoral vote totals does 538 view as impossible for Biden to achieve? Some of these are truly impossible. Given an example of one of these. Why does 538 think that some vote totals, while theoretically possible, should be given zero probability in its posterior?
 
+```{r}
+biden_c <- presidential_ev_probabilities_2020 %>%
+  filter(evprob_chal == 0)
+
+# 104 unique vote totals that are impossible
+
+biden_c
+```
 
 
 
@@ -50,9 +112,19 @@ d) How many unique electoral vote totals does 538 view as impossible for Biden t
 
 a) On a Google sheet or other spreadsheet, create an ideal Preceptor Table which illustrates the causal effect of the campaign.
 
+
+
+
 b) Does it make sense to calculate an average causal effect?
+
+no--ad campaign effects different states differently so shouldn't assume the same causal effect in each state
+
+
 
 c) There are two approaches Biden might take to determine which states to use the campaign in. He could randomize. He could select states which, in his judgment, do the most to increase his odds of winning the presidency. Which should he do?
 
+
+
 d) Assume he randomized. What conclusions might we be able to draw after the election? How would we draw them.
+
 
